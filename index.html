@@ -40,7 +40,12 @@
   <!-- The object: hidden until you reach the spot. "View in AR" places it on the ground. -->
   <model-viewer id="model" src="models/1122.glb" alt="Hidden object"
                 ar ar-modes="webxr scene-viewer quick-look" ar-placement="floor"
-                camera-controls auto-rotate autoplay shadow-intensity="1">
+                camera-controls autoplay shadow-intensity="1"
+                camera-orbit="0deg 86.016486deg 17.031782m"
+                camera-target="0m 0.707632m 0m"
+                min-camera-orbit="auto auto 0.1m"
+                max-camera-orbit="auto auto 100m"
+                field-of-view="22.895deg" min-field-of-view="1deg" max-field-of-view="120deg">
     <button slot="ar-button" id="ar">View in AR</button>
   </model-viewer>
 
@@ -55,6 +60,19 @@
     const $coords = document.getElementById("coords");
     const model = document.getElementById("model");
     let unlocked = false;
+    // Match the saved Blender camera (50 mm / 36 mm sensor, 1920 x 1080).
+    // Keep its horizontal composition on portrait phones; allow extra vertical space.
+    function fitBlenderCamera() {
+      if (!model.loaded || !model.clientWidth || !model.clientHeight) return;
+      const aspect = model.clientWidth / model.clientHeight;
+      const halfVerticalTan = Math.max(0.36 / (16 / 9), 0.36 / aspect);
+      // model-viewer applies its own aspect correction; compensate before setting FOV.
+      const correction = Math.max(1, model.getIdealAspect() / aspect);
+      model.fieldOfView = (2 * Math.atan(halfVerticalTan / correction) * 180 / Math.PI) + 'deg';
+    }
+    model.addEventListener('load', fitBlenderCamera);
+    new ResizeObserver(() => requestAnimationFrame(fitBlenderCamera)).observe(model);
+
 
     // ── Scout mode: add ?scout to the URL ──
     // Walk the Oval, tap "Mark this spot" where you'd like the object. Copy the line into TARGET.
