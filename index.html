@@ -20,9 +20,12 @@
     #spots { list-style: none; padding: 0; margin: 16px 0 0; text-align: left; font: 13px ui-monospace, monospace; }
     #spots li { background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
     #spots b { font-family: system-ui, sans-serif; }
+  #music-toggle { position: fixed; top: max(16px, env(safe-area-inset-top)); right: 16px; z-index: 20; font-size: 14px; padding: 10px 16px; }
   </style>
 </head>
 <body>
+  <audio id="bgm" src="audio/ovalbgm.mp3" loop preload="none"></audio>
+  <button id="music-toggle" type="button" aria-pressed="false">Play music</button>
   <div id="panel">
     <h1>Found on the Oval</h1>
     <p>Walk to the spot to unlock the object.</p>
@@ -50,6 +53,25 @@
   </model-viewer>
 
   <script>
+    const bgm = document.getElementById('bgm');
+    const musicToggle = document.getElementById('music-toggle');
+    function syncMusicButton() {
+      musicToggle.textContent = bgm.paused ? 'Play music' : 'Pause music';
+      musicToggle.setAttribute('aria-pressed', String(!bgm.paused));
+    }
+    async function playMusic() {
+      try { await bgm.play(); }
+      catch { syncMusicButton(); }
+    }
+    bgm.addEventListener('play', syncMusicButton);
+    bgm.addEventListener('pause', syncMusicButton);
+    bgm.addEventListener('error', () => {
+      musicToggle.textContent = 'Music unavailable';
+      musicToggle.disabled = true;
+    });
+    musicToggle.addEventListener('click', () => {
+      if (bgm.paused) playMusic(); else bgm.pause();
+    });
     // ── YOUR SPOT: change these ──────────────────────────────
     // Default ≈ middle of the Oval. Stand on your spot, read "you:" on screen, paste it here.
     const TARGET = { lat: 39.99957, lon: -83.013125 };
@@ -91,6 +113,7 @@
     }
 
     document.getElementById("go").onclick = (e) => {
+      playMusic();
       e.target.remove();
       if (SCOUT) {
         document.getElementById("scout").classList.add("on");
