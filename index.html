@@ -43,7 +43,7 @@
   <!-- The object: hidden until you reach the spot. "View in AR" places it on the ground. -->
   <model-viewer id="model" ios-src="models/tree-apple-v3.usdz" src="models/1122.glb" alt="Hidden object"
                 ar ar-modes="webxr scene-viewer quick-look" ar-placement="floor"
-                camera-controls autoplay shadow-intensity="1"
+                camera-controls shadow-intensity="1"
                 camera-orbit="0deg 86.016486deg 17.031782m"
                 camera-target="0m 0.707632m 0m"
                 min-camera-orbit="auto auto 0.1m"
@@ -86,7 +86,7 @@
       if (!model.loaded) return;
       if (!unlocked) { model.pause(); return; }
       model.currentTime = 0;
-      model.play();
+      model.play({ repetitions: 1 });
     }
     model.addEventListener('load', playGrowthOnUnlock);
     // Match the saved Blender camera (50 mm / 36 mm sensor, 1920 x 1080).
