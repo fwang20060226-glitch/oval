@@ -82,12 +82,28 @@
     const $coords = document.getElementById("coords");
     const model = document.getElementById("model");
     let unlocked = false;
+    let growthStarted = false;
+    let growthFinished = false;
+    function holdMatureTree() {
+      model.pause();
+      if (Number.isFinite(model.duration) && model.duration > 0) {
+        model.currentTime = model.duration;
+      }
+    }
     function playGrowthOnUnlock() {
       if (!model.loaded) return;
+      if (growthFinished) { holdMatureTree(); return; }
       if (!unlocked) { model.pause(); return; }
+      if (growthStarted) return;
+      growthStarted = true;
       model.currentTime = 0;
       model.play({ repetitions: 1 });
     }
+    model.addEventListener('finished', () => {
+      if (!growthStarted) return;
+      growthFinished = true;
+      holdMatureTree();
+    });
     model.addEventListener('load', playGrowthOnUnlock);
     // Match the saved Blender camera (50 mm / 36 mm sensor, 1920 x 1080).
     // Keep its horizontal composition on portrait phones; allow extra vertical space.
