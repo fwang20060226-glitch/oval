@@ -1,51 +1,71 @@
-# Found on the Oval — Starter
+# Rooted in Time — Found on the Oval
 
 DESIGN 4106 · Intro to AR Training 2
 
-![screenshot](screenshot.png)
+## Project Deliverables
 
-A .glb stays locked until your phone's GPS says you are at the spot. Then it opens in [model-viewer](https://modelviewer.dev), with a **View in AR** button. One HTML file, no install.
+- **Title:** Rooted in Time
+- **Names:** Freya&Wenxi
+- **Live page:** [https://github.com/fwang20060226-glitch/oval.git]
+- **Coordinates:** 39.999570, -83.013125
+- **Intent:** By revealing a growing tree on the Oval’s lawn, our AR experience makes the gradual growth behind this familiar campus landscape visible in a single visit.
+- **Screenshot:** See the on-site AR screenshot below.
+- **Video:** Submitted separately on Carmen as a stable MP4 recording under two minutes, showing both the approach and unlock, followed by AR placement.
 
-Demo: [http://go.osu.edu/geo-starter](http://go.osu.edu/geo-starter)
+![On-site AR view of the growing tree on the Oval](screenshot.png)
 
-## Test on your computer (VS Code + Live Server)
+## Concept and Development
 
-1. Open the project folder in VS Code
-2. Make sure you have the **Live Server** extension (Extensions panel → search "Live Server" → Install)
-3. Right-click `index.html` → **Open with Live Server**
-4. Add `?fake` to the address (e.g. `http://127.0.0.1:5500/index.html?fake`) and click Start. It simulates walking in from 60 m.
+Our initial idea was to show the changing seasons on a patch of grass. We wanted participants to encounter a familiar part of the Oval and see the changes that normally unfold too slowly to notice during a single visit.
 
-## Test on location (GitHub Pages)
+We built a seasonal animation in Blender, but encountered several technical challenges. Some animation effects did not transfer reliably to our AR workflow, the exported animations were split into separate clips, and the model exceeded the assignment’s 5 MB file-size limit. Our initial video work:[https://youtu.be/vVoqFclYDIQ]
 
-1. Push your project to your GitHub repo
-2. On the repo page: **Settings → Pages → Source: Deploy from a branch → `main` / `(root)` → Save**
-3. Wait a minute, then open `https://<your-username>.github.io/<your-repo>/` on your phone
-4. Tap Start and allow location. Walk to your spot.
+We simplified the concept to a tree growing from a seedling into a mature tree. This preserved our interest in time and natural change while making the animation more suitable for AR. We also refined the tree with individual leaves, smaller branches, and details around its roots.
 
-Each time you push, the page updates within a minute or two.
+The location matters because the Oval’s lawn and trees form a landscape we often pass through without noticing its gradual changes. Requiring participants to physically reach the spot connects the digital growth to the real ground where they are standing.
 
-## Edit
+## Model and AR
 
-| File | What |
-|---|---|
-| `index.html` → `TARGET` | your spot's latitude/longitude |
-| `index.html` → `RADIUS` | how close (metres) before it opens |
-| `models/object.glb` | your model (replace the placeholder, keep the name) |
+The tree uses simple mesh geometry and animated transformations. Its growth is combined into one animation clip lasting approximately 18 seconds.
 
-**Finding your coordinates:** stand on your spot with the page open; it prints your live coordinates. Wait for ±10 m or better, then paste them into `TARGET`.
+- **GLB size:** Approximately 3.70 MB
+- **Scale:** 1 unit = 1 metre
+- **Mature tree height:** Approximately 4.9 metres
+- **Web model:** `models/1122.glb`
+- **Background audio:** `audio/ovalbgm.mp3`
 
-## How it works
+The GLB is used for the web preview. A separate animated USDZ is provided for iPhone and iPad AR because the automatic conversion used by our webpage did not preserve the growth animation.
 
-```js
-navigator.geolocation.watchPosition(onPosition);   // GPS listener
-// in onPosition: if distance to TARGET < RADIUS → show <model-viewer>
-```
+Background music begins after pressing Start, with a play/pause control on the webpage.
 
-## My project Deliverables
+## Test on Your Computer
 
-- **Title**
-- **Live page: your url**
-- **Coordinates: your spot coordinates**
-- **Intent: in one line -- how does your 3d object respond to the qualities of the spot**
-- **Screenshot: .png or .jpg**
-- **SUBMIT ON CARMEN -- Video: .mp4, stable shot, < 2 min.**
+1. Open the project folder in VS Code.
+2. Install the Live Server extension if needed.
+3. Right-click `index.html` and select **Open with Live Server**.
+4. Add `?fake` to the address.
+5. Click **Start** to simulate approaching the spot and test the unlock and growth animation.
+
+## Test on Location
+
+1. Open the published GitHub Pages website on your phone.
+2. Make sure the URL does not contain `?fake` or `?scout`.
+3. Tap **Start** and allow location access.
+4. Walk toward **39.999570, -83.013125**.
+5. Once inside the unlock radius, the model appears and the growth animation starts.
+6. Tap **View in AR** and place the tree on the ground.
+7. Check its placement, physical scale, and animation on the device.
+
+## How It Works
+
+The webpage uses the phone’s GPS to calculate the distance to the selected spot. The model remains hidden until the participant enters the unlock radius.
+
+The coordinates are set in `TARGET`, and the unlock radius is set in `RADIUS` in `index.html`.
+
+## Credits
+
+Built from the course’s
+[geo-model-viewer starter](https://github.com/robillardstudio/geo-model-viewer-starter)
+using [model-viewer](https://modelviewer.dev/).
+
+The project was developed through iterative Blender and web testing, with AI assistance for troubleshooting, tree-model generation, animation export, and webpage integration.
