@@ -1,209 +1,169 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Found on the Oval</title>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.4.0/dist/model-viewer.min.js"></script>
-  <style>
-    html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; background: #f4f1ec; color: #222; }
-    #panel { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; }
-    h1 { margin: 0 0 8px; font-size: 26px; color: #bb0000; }
-    #status { font-size: 20px; margin: 16px 0 4px; }
-    #coords { font: 12px ui-monospace, monospace; opacity: .6; }
-    button { font: inherit; font-size: 18px; padding: 14px 40px; border: 0; border-radius: 999px; background: #bb0000; color: #fff; font-weight: 600; }
-    model-viewer { position: fixed; inset: 0; width: 100%; height: 100%; display: none; z-index: 10; background: #f4f1ec; }
-    model-viewer.open { display: block; }
-    #ar { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); }
-    #scout { display: none; width: 100%; max-width: 420px; margin-top: 16px; }
-    #scout.on { display: block; }
-    #spots { list-style: none; padding: 0; margin: 16px 0 0; text-align: left; font: 13px ui-monospace, monospace; }
-    #spots li { background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
-    #spots b { font-family: system-ui, sans-serif; }
-  #music-toggle { position: fixed; top: max(16px, env(safe-area-inset-top)); right: 16px; z-index: 20; font-size: 14px; padding: 10px 16px; }
-  </style>
-</head>
-<body>
-  <audio id="bgm" src="audio/ovalbgm.mp3" loop preload="none"></audio>
-  <button id="music-toggle" type="button" aria-pressed="false">Play music</button>
-  <div id="panel">
-    <h1>Found on the Oval</h1>
-    <p>Walk to the spot to unlock the object.</p>
-    <button id="go">Start</button>
-    <div id="status"></div>
-    <div id="coords"></div>
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Return to Bloom</title><script type="module" src="vendor/model-viewer-4.4.0.min.js"></script>
+<style>[hidden]{display:none!important}#records{white-space:pre-wrap;overflow-wrap:anywhere}*{box-sizing:border-box}body{margin:0;background:#f1f3e9;color:#233c30;font:16px system-ui}main{max-width:760px;margin:auto;padding:24px}h1{font:40px Georgia;margin:10px 0}small{letter-spacing:2px}button{background:#294f3c;color:white;border:0;border-radius:24px;padding:12px 20px;margin:5px;font:inherit;cursor:pointer}button:disabled{opacity:.4;cursor:default}.card{background:white;border-radius:20px;padding:20px;margin:16px 0}#map{display:flex;justify-content:space-around;align-items:center;padding:24px 0}.spot{border:2px solid #c8d7c3;border-radius:50%;padding:18px}.active{background:#d9edac;border-color:#34583b}model-viewer{width:100%;height:46vh;min-height:300px;background:#e7ecdc;border-radius:18px}#ar{position:absolute;bottom:12px;left:25%;width:50%}.hint{color:#627368}#notice{min-height:24px}#test{border:2px dashed #ca952d;padding:12px}ul{padding-left:20px}</style>
+<main><small>FOUND ON THE OVAL · A WALKING GAME</small><h1>Return to Bloom</h1><p class="hint">Freya &amp; Wenxi · Project 2</p><p>Bring life back to one tree, one journey at a time.</p><div id="test" hidden><b>SIMULATION — GPS is not being tested</b><div><button data-test="A">Arrive at A</button><button data-test="B">Arrive at B</button><button data-test="C">Arrive at C</button></div></div><button id="start">Start location tracking</button><p id="gps" class="hint"></p><div class="card"><small id="chapter"></small><h2 id="task"></h2><div id="map"><span class="spot" id="spotA">A · Tree</span>→<span class="spot" id="spotB">B · Green</span>→<span class="spot" id="spotC">C · Pink</span></div><p class="hint">Route: A → B → A → C → A · Schematic, not a geographic map.</p><p id="inventory"></p><button id="action" disabled></button><p id="notice" role="status" aria-live="polite"></p></div><p id="model-status" role="status" aria-live="polite"></p><button id="retry" hidden>Retry model</button><button id="reload" hidden>Reload page</button><model-viewer id="model" alt="The tree and seeds in Return to Bloom" ar-scale="fixed" loading="eager" camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-placement="floor" shadow-intensity="1" hidden><button id="ar" slot="ar-button">Place in AR</button></model-viewer><div class="card" id="scout" hidden><h3>Record a spot</h3><p>Wait for good GPS accuracy, then save each location.</p><button data-mark="A">Save A</button><button data-mark="B">Save B</button><button data-mark="C">Save C</button><pre id="records"></pre></div><p class="hint">Future chapters: discover water, pollinators and other trees around the Oval.</p><button id="reset">Restart game</button></main>
+<script>
+// Fill these with ON-SITE measurements.
+const SPOTS={A:{lat:null,lon:null,radius:20},B:{lat:null,lon:null,radius:20},C:{lat:null,lon:null,radius:20}};
+// On-site coordinates are configured in SPOTS above this script.
+const params = new URLSearchParams(location.search);
+const FAKE = params.has('fake'), SCOUT = params.has('scout');
+const KEY = 'oval-seed-quest-' + (FAKE ? 'test' : 'live') + '-v1';
+const $ = id => document.getElementById(id), model = $('model');
+let step = 0;
+try { step = Number(localStorage.getItem(KEY) || 0); } catch {}
+if (!Number.isInteger(step) || step < 0 || step > 5) step = 0;
+let near = null, last = null, watch = null, busy = false, animation = null;
+let desired = null, ready = false, failed = false, loadTimer, animationTimer, lastFix = 0;
+let retryCount = 0, libraryReady = false;
+const tasks = [
+  ['A', 'Find the dormant tree', 'Begin the journey'],
+  ['B', 'Find the green seed', 'Collect green seed'],
+  ['A', 'Return the green seed to the tree', 'Give green seed'],
+  ['C', 'Find the pink seed', 'Collect pink seed'],
+  ['A', 'Return the pink seed to the tree', 'Give pink seed'],
+  [null, 'The tree is blooming. Your journey is complete!', 'Completed']
+];
+function save() { try { localStorage.setItem(KEY, String(step)); } catch { $('gps').textContent = 'Progress cannot be saved in this browser. Keep this tab open.'; } }
+function render() {
+  const [target, title, label] = tasks[step];
+  $('chapter').textContent = 'CHAPTER ' + Math.min(step + 1, 5) + ' / 5';
+  $('task').textContent = title;
+  $('action').textContent = label;
+  $('action').disabled = !libraryReady || !ready || busy || step === 5 || near !== target;
+  $('ar').disabled = !ready || busy;
+  if (ready && !busy) model.setAttribute('ar', ''); else model.removeAttribute('ar');
+  $('inventory').textContent = 'Inventory: ' + (step === 2 ? 'green seed' : step === 4 ? 'pink seed' : step === 5 ? 'Both seeds returned · tree restored' : 'empty');
+  for (const k of ['A', 'B', 'C']) $('spot' + k).classList.toggle('active', k === target);
+  $('retry').hidden = !failed;
+}
+function stopTimers() { clearTimeout(loadTimer); clearTimeout(animationTimer); }
+function hide() {
+  stopTimers(); desired = null; ready = false; failed = false;
+  if (typeof model.pause === 'function') model.pause();
+  model.hidden = true; $('model-status').textContent = ''; render();
+}
+function show(name, retry = false) {
+  if (desired === name && !retry) { render(); return; }
+  stopTimers(); desired = name; ready = false; failed = false;
+  model.hidden = true; model.removeAttribute('autoplay');
+  $('model-status').textContent = 'Loading ' + name.replaceAll('-', ' ') + '…';
+  model.setAttribute('src', 'models/' + name + '.glb' + (retry ? '?retry=' + (++retryCount) : ''));
+  render(); loadTimer = setTimeout(loadFailure, 25000);
+  // Re-entering a spot can reuse a model that is already loaded.
+  if (libraryReady) model.updateComplete.then(() => {
+    if (desired === name && model.loaded && !ready) onModelLoad();
+  });
+}
+function viewAtSpot() {
+  if (near === 'A') return step >= 5 ? 'bloom' : step >= 3 ? 'leaves' : 'dead';
+  if (near === 'B' && (step === 1 || step === 2)) return 'green-seed';
+  if (near === 'C' && (step === 3 || step === 4)) return 'pink-seed';
+  return null;
+}
+function refreshView() { const name = viewAtSpot(); if (name) show(name); else hide(); }
+function arrive(k) {
+  const changed = k !== near; near = k;
+  if (busy) { render(); return; }
+  refreshView();
+  if (viewAtSpot()) {
+    $('notice').textContent = k === tasks[step][0] ? 'Spot ' + k + ' opened. ' + tasks[step][2] + '.' : k === 'A' ? (step === 5 ? 'Tree restored! Place the flowering tree in AR.' : 'Your tree is here. Continue to ' + tasks[step][0] + ' for the next seed.') : 'Seed collected. You can still place it in AR here, then return to A.';
+    if (changed) navigator.vibrate?.(120);
+  } else $('notice').textContent = k ? 'Follow your current objective to open the next object.' : 'Walk to your next spot to open it.';
+  render();
+}
+function onModelLoad() {
+  if (!desired || !model.loaded || ready) return;
+  clearTimeout(loadTimer); ready = true; failed = false; model.hidden = false;
+  $('model-status').textContent = animation ? 'Growing… Please wait.' : 'Model ready. On iPhone or iPad, open this page in Safari and tap Place in AR.';
+  if ($('notice').textContent === 'Retrying model…') $('notice').textContent = 'Model loaded. You can continue.';
+  if (animation) {
+    if (!model.availableAnimations.length) { finish(true); return; }
+    model.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    model.animationName = model.availableAnimations[0];
+    model.currentTime = 0; model.play({ repetitions: 1 });
+    animationTimer = setTimeout(() => finish(true), Math.max(8000, (model.duration || 5) * 1000 + 3000));
+  } else model.pause();
+  render();
+}
+function loadFailure() {
+  if (!desired) return;
+  if (animation) { finish(true); return; }
+  clearTimeout(loadTimer); ready = false; failed = true; model.hidden = true;
+  $('notice').textContent = 'Model could not load. Check your connection, then tap Retry model. Your progress is saved.';
+  $('model-status').textContent = 'Model unavailable.'; render();
+}
+function finish(fallback = false) {
+  if (!animation) return;
+  stopTimers(); if (typeof model.pause === 'function') model.pause();
+  animation = null; busy = false; refreshView();
+  $('notice').textContent = (fallback ? 'Animation unavailable; showing the completed tree. ' : '') + (step === 5 ? 'You restored the tree. Place the flowering tree in AR at A.' : 'Leaves restored! View the tree in AR at A, then find the pink seed at C.');
+  render();
+}
+$('action').onclick = () => {
+  if (!ready || busy || step === 5 || near !== tasks[step][0]) return;
+  const old = step; step++; save();
+  if (old === 2 || old === 4) {
+    busy = true; animation = old === 2 ? 'grow-leaves' : 'grow-flowers';
+    show(animation); $('notice').textContent = 'The tree is changing…';
+  } else {
+    refreshView();
+    $('notice').textContent = old === 0 ? 'Find the green seed at B.' : 'Seed collected! Place it in AR here, then return to A.';
+  }
+  render();
+};
+model.addEventListener('load', onModelLoad);
+model.addEventListener('finished', () => finish());
+model.addEventListener('error', loadFailure);
+model.addEventListener('ar-status', e => {
+  if (e.detail.status === 'failed') $('model-status').textContent = 'AR could not open. On iPhone/iPad, open this HTTPS link directly in Safari, allow camera access if asked, and try Place in AR again.';
+});
+$('retry').onclick = () => { if (desired) { $('notice').textContent = 'Retrying model…'; show(desired, true); } };
+const libraryTimer = setTimeout(() => { if (!libraryReady) { $('model-status').textContent = 'The 3D viewer could not start. Check your connection and reload this page.'; $('reload').hidden = false; } }, 20000);
+customElements.whenDefined('model-viewer').then(() => { libraryReady = true; clearTimeout(libraryTimer); $('reload').hidden = true; render(); });
+$('reload').onclick = () => location.reload();
+function distance(a, b) {
+  const r = Math.PI / 180, dlat = (b.lat - a.lat) * r, dlon = (b.lon - a.lon) * r;
+  return 12742000 * Math.asin(Math.min(1, Math.sqrt(Math.sin(dlat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dlon / 2) ** 2)));
+}
+function configured() {
+  return Object.values(SPOTS).every(p => Number.isFinite(p.lat) && Math.abs(p.lat) <= 90 && Number.isFinite(p.lon) && Math.abs(p.lon) <= 180 && Number.isFinite(p.radius) && p.radius >= 15 && p.radius <= 25) && ['AB', 'AC', 'BC'].every(pair => distance(SPOTS[pair[0]], SPOTS[pair[1]]) > SPOTS[pair[0]].radius + SPOTS[pair[1]].radius);
+}
+$('start').onclick = () => {
+  if (FAKE) { $('notice').textContent = 'Use the simulation arrival buttons.'; return; }
+  if (!SCOUT && !configured()) { $('gps').textContent = 'Locations are not configured, or their radii overlap. Use ?scout to measure them; use ?fake for desktop testing.'; return; }
+  if (watch !== null) return;
+  if (!navigator.geolocation) { $('gps').textContent = 'Location is unavailable. Open the HTTPS website in your browser.'; return; }
+  $('gps').textContent = 'Waiting for your location…';
+  watch = navigator.geolocation.watchPosition(({ coords: c }) => {
+    last = { lat: c.latitude, lon: c.longitude }; lastFix = Date.now();
+    $('gps').textContent = `${last.lat.toFixed(6)}, ${last.lon.toFixed(6)} · accuracy ±${Math.round(c.accuracy)} m`;
+    if (SCOUT) return;
+    const next = c.accuracy <= 35 ? Object.keys(SPOTS).find(k => distance(last, SPOTS[k]) <= SPOTS[k].radius) || null : null;
+    if (next !== near) arrive(next);
+    if (c.accuracy > 35) $('gps').textContent += ' · Waiting for more accurate GPS. Move into the open.';
+  }, e => {
+    arrive(null); $('gps').textContent = e.message || 'Location temporarily unavailable. Waiting for a new position…';
+    if (e.code === 1) { navigator.geolocation.clearWatch(watch); watch = null; $('gps').textContent = 'Location permission denied. Allow location, then tap Start again.'; }
+  }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
+};
+setInterval(() => { if (!FAKE && !SCOUT && near && lastFix && Date.now() - lastFix > 45000) { arrive(null); $('gps').textContent = 'Waiting for a fresh GPS position…'; } }, 5000);
+$('test').hidden = !FAKE;
+document.querySelectorAll('[data-test]').forEach(b => b.onclick = () => { if (!busy) arrive(b.dataset.test); });
+$('scout').hidden = !SCOUT;
+let records = {};
+try { const saved = JSON.parse(localStorage.getItem('oval-quest-scout') || '{}'); if (saved && typeof saved === 'object' && !Array.isArray(saved)) records = saved; } catch {}
+$('records').textContent = JSON.stringify(records, null, 2);
+document.querySelectorAll('[data-mark]').forEach(b => b.onclick = () => {
+  if (!last) { $('notice').textContent = 'Start location tracking first.'; return; }
+  records[b.dataset.mark] = { ...last, radius: 20 };
+  try { localStorage.setItem('oval-quest-scout', JSON.stringify(records)); } catch { $('notice').textContent = 'Storage unavailable. Copy the displayed coordinates before closing.'; }
+  $('records').textContent = JSON.stringify(records, null, 2);
+});
+$('reset').onclick = () => {
+  if (!confirm('Reset collected seeds and tree progress?')) return;
+  stopTimers(); step = 0; save(); animation = null; busy = false; hide();
+  $('notice').textContent = 'New journey. Return to A.'; if (near) arrive(near); else render();
+};
+render();
 
-    <!-- Scout mode (?scout): walk the Oval and mark candidate spots -->
-    <div id="scout">
-      <button id="mark">Mark this spot</button>
-      <ul id="spots"></ul>
-    </div>
-  </div>
-
-  <!-- The object: hidden until you reach the spot. "View in AR" places it on the ground. -->
-  <model-viewer id="model" ios-src="models/tree-apple-v3.usdz" src="models/1122.glb" alt="Hidden object"
-                ar ar-modes="webxr scene-viewer quick-look" ar-placement="floor"
-                camera-controls shadow-intensity="1"
-                camera-orbit="0deg 86.016486deg 17.031782m"
-                camera-target="0m 0.707632m 0m"
-                min-camera-orbit="auto auto 0.1m"
-                max-camera-orbit="auto auto 100m"
-                field-of-view="22.895deg" min-field-of-view="1deg" max-field-of-view="120deg">
-    <button slot="ar-button" id="ar">View in AR</button>
-  </model-viewer>
-
-  <script>
-    const bgm = document.getElementById('bgm');
-    const musicToggle = document.getElementById('music-toggle');
-    function syncMusicButton() {
-      musicToggle.textContent = bgm.paused ? 'Play music' : 'Pause music';
-      musicToggle.setAttribute('aria-pressed', String(!bgm.paused));
-    }
-    async function playMusic() {
-      try { await bgm.play(); }
-      catch { syncMusicButton(); }
-    }
-    bgm.addEventListener('play', syncMusicButton);
-    bgm.addEventListener('pause', syncMusicButton);
-    bgm.addEventListener('error', () => {
-      musicToggle.textContent = 'Music unavailable';
-      musicToggle.disabled = true;
-    });
-    musicToggle.addEventListener('click', () => {
-      if (bgm.paused) playMusic(); else bgm.pause();
-    });
-    // ── YOUR SPOT: change these ──────────────────────────────
-    // Default ≈ middle of the Oval. Stand on your spot, read "you:" on screen, paste it here.
-    const TARGET = { lat: 39.99957, lon: -83.013125 };
-    const RADIUS = 15; // metres. Phone GPS drifts 5–15 m.
-    // ─────────────────────────────────────────────────────────
-
-    const $status = document.getElementById("status");
-    const $coords = document.getElementById("coords");
-    const model = document.getElementById("model");
-    let unlocked = false;
-    let growthStarted = false;
-    let growthFinished = false;
-    function holdMatureTree() {
-      model.pause();
-      if (Number.isFinite(model.duration) && model.duration > 0) {
-        model.currentTime = model.duration;
-      }
-    }
-    function playGrowthOnUnlock() {
-      if (!model.loaded) return;
-      if (growthFinished) { holdMatureTree(); return; }
-      if (!unlocked) { model.pause(); return; }
-      if (growthStarted) return;
-      growthStarted = true;
-      model.currentTime = 0;
-      model.play({ repetitions: 1 });
-    }
-    model.addEventListener('finished', () => {
-      if (!growthStarted) return;
-      growthFinished = true;
-      holdMatureTree();
-    });
-    model.addEventListener('load', playGrowthOnUnlock);
-    // Match the saved Blender camera (50 mm / 36 mm sensor, 1920 x 1080).
-    // Keep its horizontal composition on portrait phones; allow extra vertical space.
-    function fitBlenderCamera() {
-      if (!model.loaded || !model.clientWidth || !model.clientHeight) return;
-      const aspect = model.clientWidth / model.clientHeight;
-      const halfVerticalTan = Math.max(0.36 / (16 / 9), 0.36 / aspect);
-      // model-viewer applies its own aspect correction; compensate before setting FOV.
-      const correction = Math.max(1, model.getIdealAspect() / aspect);
-      model.fieldOfView = (2 * Math.atan(halfVerticalTan / correction) * 180 / Math.PI) + 'deg';
-    }
-    model.addEventListener('load', fitBlenderCamera);
-    new ResizeObserver(() => requestAnimationFrame(fitBlenderCamera)).observe(model);
-
-
-    // ── Scout mode: add ?scout to the URL ──
-    // Walk the Oval, tap "Mark this spot" where you'd like the object. Copy the line into TARGET.
-    const SCOUT = location.search.includes("scout");
-    let last = null;
-    if (SCOUT) {
-      document.querySelector("h1").textContent = "Scout the Oval";
-      document.querySelector("#panel p").textContent = "Walk around and mark the spots you like.";
-    }
-
-    document.getElementById("go").onclick = (e) => {
-      playMusic();
-      e.target.remove();
-      if (SCOUT) {
-        document.getElementById("scout").classList.add("on");
-        renderSpots();
-        navigator.geolocation.watchPosition(({ coords }) => {
-          last = coords;
-          $status.textContent = `±${Math.round(coords.accuracy)} m ${coords.accuracy <= 10 ? "· good" : "· wait…"}`;
-          $coords.textContent = `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)}`;
-        }, (err) => ($status.textContent = "GPS error: " + err.message), { enableHighAccuracy: true });
-        $status.textContent = "Waiting for GPS…";
-        return;
-      }
-      if (location.search.includes("fake")) return fakeWalk();
-      navigator.geolocation.watchPosition(onPosition,
-        (err) => ($status.textContent = "GPS error: " + err.message),
-        { enableHighAccuracy: true });
-      $status.textContent = "Waiting for GPS…";
-    };
-
-    // The GPS listener: runs every time the phone reports a new position.
-    function onPosition({ coords }) {
-      const d = distance(coords.latitude, coords.longitude, TARGET.lat, TARGET.lon);
-      $coords.textContent = `you: ${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)} · ±${Math.round(coords.accuracy)} m`;
-      if (unlocked) return;
-      if (d < RADIUS) {
-        unlocked = true;
-        model.classList.add("open"); playGrowthOnUnlock(); // ← opens the .glb
-        $status.textContent = "Found it.";
-      } else {
-        $status.textContent = `${Math.round(d)} m away · head ${compass(coords.latitude, coords.longitude)}`;
-      }
-    }
-
-    // Desktop test without GPS: add ?fake to the URL. Walks you in from 60 m.
-    function fakeWalk() {
-      let lat = TARGET.lat - 60 / 111320;
-      setInterval(() => {
-        lat += 5 / 111320;
-        onPosition({ coords: { latitude: lat, longitude: TARGET.lon, accuracy: 0 } });
-      }, 1000);
-    }
-
-    document.getElementById("mark").onclick = () => {
-      if (!last) return;
-      const note = prompt("Note for this spot (e.g. 'bench by Orton Hall'):") || "";
-      const spots = loadSpots();
-      spots.push({ lat: +last.latitude.toFixed(6), lon: +last.longitude.toFixed(6), acc: Math.round(last.accuracy), note,
-                   time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) });
-      saveSpots(spots);
-      renderSpots();
-    };
-
-    function renderSpots() {
-      document.getElementById("spots").innerHTML = loadSpots().map((s, i) =>
-        `<li><b>${i + 1}. ${esc(s.note) || "spot"}</b> · ${s.time} · ±${s.acc} m<br>{ lat: ${s.lat}, lon: ${s.lon} }</li>`
-      ).reverse().join("");
-    }
-    const esc = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-    // Spots are kept on this phone (survive reloads). Screenshot the list as a backup.
-    function loadSpots() { try { return JSON.parse(localStorage.getItem("spots")) || []; } catch { return []; } }
-    function saveSpots(s) { try { localStorage.setItem("spots", JSON.stringify(s)); } catch {} }
-
-    // ── helpers ──
-    function distance(lat1, lon1, lat2, lon2) {
-      const r = Math.PI / 180, a = Math.sin((lat2 - lat1) * r / 2) ** 2 +
-        Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin((lon2 - lon1) * r / 2) ** 2;
-      return 12742000 * Math.asin(Math.sqrt(a));
-    }
-    function compass(lat, lon) {
-      const r = Math.PI / 180;
-      const y = Math.sin((TARGET.lon - lon) * r) * Math.cos(TARGET.lat * r);
-      const x = Math.cos(lat * r) * Math.sin(TARGET.lat * r) - Math.sin(lat * r) * Math.cos(TARGET.lat * r) * Math.cos((TARGET.lon - lon) * r);
-      return ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(((Math.atan2(y, x) / r + 360) % 360) / 45) % 8];
-    }
-  </script>
-</body>
-</html>
+</script></html>
