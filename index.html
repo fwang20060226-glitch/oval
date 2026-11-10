@@ -1,9 +1,21 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Return to Bloom</title><script type="module" src="vendor/model-viewer-4.4.0.min.js"></script>
-<style>[hidden]{display:none!important}#records{white-space:pre-wrap;overflow-wrap:anywhere}*{box-sizing:border-box}body{margin:0;background:#f1f3e9;color:#233c30;font:16px system-ui}main{max-width:760px;margin:auto;padding:24px}h1{font:40px Georgia;margin:10px 0}small{letter-spacing:2px}button{background:#294f3c;color:white;border:0;border-radius:24px;padding:12px 20px;margin:5px;font:inherit;cursor:pointer}button:disabled{opacity:.4;cursor:default}.card{background:white;border-radius:20px;padding:20px;margin:16px 0}#map{display:flex;justify-content:space-around;align-items:center;padding:24px 0}.spot{border:2px solid #c8d7c3;border-radius:50%;padding:18px}.active{background:#d9edac;border-color:#34583b}model-viewer{width:100%;height:46vh;min-height:300px;background:#e7ecdc;border-radius:18px}#ar{position:absolute;bottom:12px;left:25%;width:50%}.hint{color:#627368}#notice{min-height:24px}#test{border:2px dashed #ca952d;padding:12px}ul{padding-left:20px}</style>
-<main><small>FOUND ON THE OVAL · A WALKING GAME</small><h1>Return to Bloom</h1><p class="hint">Freya &amp; Wenxi · Project 2</p><p>Bring life back to one tree, one journey at a time.</p><div id="test" hidden><b>SIMULATION — GPS is not being tested</b><div><button data-test="A">Arrive at A</button><button data-test="B">Arrive at B</button><button data-test="C">Arrive at C</button></div></div><button id="start">Start location tracking</button><p id="gps" class="hint"></p><div class="card"><small id="chapter"></small><h2 id="task"></h2><div id="map"><span class="spot" id="spotA">A · Tree</span>→<span class="spot" id="spotB">B · Green</span>→<span class="spot" id="spotC">C · Pink</span></div><p class="hint">Route: A → B → A → C → A · Schematic, not a geographic map.</p><p id="inventory"></p><button id="action" disabled></button><p id="notice" role="status" aria-live="polite"></p></div><p id="model-status" role="status" aria-live="polite"></p><button id="retry" hidden>Retry model</button><button id="reload" hidden>Reload page</button><model-viewer id="model" alt="The tree and seeds in Return to Bloom" ar-scale="fixed" loading="eager" camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-placement="floor" shadow-intensity="1" hidden><button id="ar" slot="ar-button">Place in AR</button></model-viewer><div class="card" id="scout" hidden><h3>Record a spot</h3><p>Wait for good GPS accuracy, then save each location.</p><button data-mark="A">Save A</button><button data-mark="B">Save B</button><button data-mark="C">Save C</button><pre id="records"></pre></div><p class="hint">Future chapters: discover water, pollinators and other trees around the Oval.</p><button id="reset">Restart game</button></main>
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Revive the Tree</title><script type="module" src="vendor/model-viewer-4.4.0.min.js"></script>
+<style>
+:root{color-scheme:light;--paper:#f7e7b8;--ink:#433a27;--green:#435c32;--gold:#926516;--line:#d9c18a}
+[hidden]{display:none!important}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:18px}
+body{margin:0;background:radial-gradient(ellipse at top left,#fffae8,transparent 65%),var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,sans-serif}
+main{max-width:760px;margin:auto;padding:28px 22px 38px}h1{font:italic 700 clamp(42px,8vw,62px)/1.08 Georgia,serif;color:var(--gold);margin:16px 0 10px;letter-spacing:-1.5px;text-wrap:balance}h2{font:600 27px/1.2 Georgia,serif;margin:10px 0 12px;text-wrap:balance}small{font-size:11px;letter-spacing:1.7px;font-weight:700;color:var(--green)}p{margin:12px 0}
+button{background:var(--green);color:#fffbed;border:1px solid transparent;border-radius:24px;padding:12px 19px;margin:5px 5px 5px 0;min-height:46px;font:600 15px/1.4 system-ui;cursor:pointer}button:hover:not(:disabled){background:#334928}button:disabled{opacity:.45;cursor:default}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+.card{background:#fff9e8;border:1px solid var(--line);border-radius:20px;padding:22px;margin:20px 0;box-shadow:0 5px 18px #72552008}
+#map{display:flex;gap:4px;justify-content:space-between;align-items:center;padding:12px 0;color:#8d703e}.spot{flex:1;min-width:0;text-align:center;border:1px solid var(--line);border-radius:15px;padding:13px 4px;font-size:14px;font-weight:600;color:var(--ink);background:#f8edcf}.spot.active{background:#e5edbf;border:2px solid #657b39;color:#344523}
+model-viewer{width:100%;height:46vh;min-height:300px;background:#eee9cd;border:1px solid var(--line);border-radius:20px;--poster-color:#eee9cd}#ar{position:absolute;bottom:12px;left:15%;width:70%;margin:0}.hint{color:#696047;font-size:14px}#notice{min-height:24px;color:#435c32}#destination{border-left:3px solid #b18c39;padding-left:10px;color:#564629}#inventory{font-size:14px}#action{min-width:170px}
+#test{border:1px dashed #b49147;border-radius:14px;padding:13px;margin:20px 0;background:#fff4d7;font-size:13px}#test button{font-size:13px;padding:9px 13px;min-height:42px}#test b{color:#7f591d}#records{white-space:pre-wrap;overflow-wrap:anywhere}
+.map-panel{background:#fff7df;border:1px solid var(--line);border-radius:20px;margin:22px 0;overflow:hidden}.map-panel summary{padding:16px 18px;cursor:pointer;color:var(--green);font:600 22px/1.3 Georgia,serif}.map-panel figure{margin:0;padding:0 12px 15px}.map-panel img{display:block;width:100%;height:auto;border-radius:10px;border:1px solid #dec890}.map-panel figcaption{padding:10px 5px 0;font-size:13px;color:#696047}.map-link{color:var(--green);text-underline-offset:4px;font-weight:600}.map-panel a{display:block}#reset{background:transparent;border:1px solid #a58d5a;color:#625234;font-weight:500}#reset:hover{background:#ecdbad}
+@media(max-width:360px){main{padding:20px 16px}.card{padding:17px}.spot{font-size:12px}h2{font-size:25px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+<main><small>FOUND ON THE OVAL · A WALKING GAME</small><h1>Revive the Tree</h1><p class="hint">Freya &amp; Wenxi · Project 2</p><p>Bring life back to one tree, one journey at a time.</p><div id="test" hidden><b>SIMULATION — GPS is not being tested</b><div><button data-test="A">Arrive at A</button><button data-test="B">Arrive at B</button><button data-test="C">Arrive at C</button></div></div><button id="start">Start location tracking</button><p id="gps" class="hint"></p><div class="card"><small id="chapter"></small><h2 id="task"></h2><p id="destination" class="hint"></p><div id="map"><span class="spot" id="spotA">A · Tree</span>→<span class="spot" id="spotB">B · Green</span>→<span class="spot" id="spotC">C · Bloom</span></div><p class="hint">A: Five Brothers Trees<br>B: Tree in front of Hayes<br>C: Statue</p><p class="hint">Route: A → B → A → C → A · <a class="map-link" href="#game-map">View map ↓</a></p><p id="inventory"></p><button id="action" disabled></button><p id="notice" role="status" aria-live="polite"></p></div><p id="model-status" role="status" aria-live="polite"></p><button id="retry" hidden>Retry model</button><button id="reload" hidden>Reload page</button><model-viewer id="model" alt="The tree and seeds in Revive the Tree" ar-scale="fixed" loading="eager" camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-placement="floor" shadow-intensity="1" hidden><button id="ar" slot="ar-button">Place in AR</button></model-viewer><details id="game-map" class="map-panel" open><summary>Explore the Oval</summary><figure><a href="assets/oval-map.png" target="_blank" rel="noopener" aria-label="Open the Revive the Tree game map at full size"><img src="assets/oval-map.png" width="1448" height="1086" alt="Revive the Tree map of the Oval: A is the withered tree at Five Brothers Trees, B is the green seed in front of Hayes, and C is the bloom seed at the statue. Follow A to B to A to C to A." decoding="async"></a><figcaption>Follow the four journeys: A → B → A → C → A.<br>Tap the map to open the full-size image and zoom in.</figcaption></figure></details><div class="card" id="scout" hidden><h3>Record a spot</h3><p>Wait for good GPS accuracy, then save each location.</p><button data-mark="A">Save A</button><button data-mark="B">Save B</button><button data-mark="C">Save C</button><pre id="records"></pre></div><p class="hint">Future chapters: discover water, pollinators and other trees around the Oval.</p><button id="reset">Restart game</button></main>
 <script>
-// Fill these with ON-SITE measurements.
-const SPOTS={A:{lat:null,lon:null,radius:20},B:{lat:null,lon:null,radius:20},C:{lat:null,lon:null,radius:20}};
+// Recorded on site. A was recorded at ±104 m: remeasure A before the live demo.
+const SPOTS={"A":{"lat":39.999585,"lon":-83.012374,"radius":20,"name":"Five Brothers Trees"},"B":{"lat":40.000141,"lon":-83.011195,"radius":20,"name":"Tree in front of Hayes"},"C":{"lat":39.999364,"lon":-83.013888,"radius":20,"name":"Statue"}};
 // On-site coordinates are configured in SPOTS above this script.
 const params = new URLSearchParams(location.search);
 const FAKE = params.has('fake'), SCOUT = params.has('scout');
@@ -16,11 +28,11 @@ let near = null, last = null, watch = null, busy = false, animation = null;
 let desired = null, ready = false, failed = false, loadTimer, animationTimer, lastFix = 0;
 let retryCount = 0, libraryReady = false;
 const tasks = [
-  ['A', 'Find the dormant tree', 'Begin the journey'],
+  ['A', 'Find the withered tree', 'Begin the journey'],
   ['B', 'Find the green seed', 'Collect green seed'],
   ['A', 'Return the green seed to the tree', 'Give green seed'],
-  ['C', 'Find the pink seed', 'Collect pink seed'],
-  ['A', 'Return the pink seed to the tree', 'Give pink seed'],
+  ['C', 'Find the bloom seed', 'Collect bloom seed'],
+  ['A', 'Return the bloom seed to the tree', 'Give bloom seed'],
   [null, 'The tree is blooming. Your journey is complete!', 'Completed']
 ];
 function save() { try { localStorage.setItem(KEY, String(step)); } catch { $('gps').textContent = 'Progress cannot be saved in this browser. Keep this tab open.'; } }
@@ -28,11 +40,12 @@ function render() {
   const [target, title, label] = tasks[step];
   $('chapter').textContent = 'CHAPTER ' + Math.min(step + 1, 5) + ' / 5';
   $('task').textContent = title;
+  $('destination').textContent = target ? 'Go to ' + target + ' · ' + SPOTS[target].name : 'Return to A · ' + SPOTS.A.name + ' to view your restored tree.';
   $('action').textContent = label;
   $('action').disabled = !libraryReady || !ready || busy || step === 5 || near !== target;
   $('ar').disabled = !ready || busy;
   if (ready && !busy) model.setAttribute('ar', ''); else model.removeAttribute('ar');
-  $('inventory').textContent = 'Inventory: ' + (step === 2 ? 'green seed' : step === 4 ? 'pink seed' : step === 5 ? 'Both seeds returned · tree restored' : 'empty');
+  $('inventory').textContent = 'Inventory: ' + (step === 2 ? 'green seed' : step === 4 ? 'bloom seed' : step === 5 ? 'Both seeds returned · tree restored' : 'empty');
   for (const k of ['A', 'B', 'C']) $('spot' + k).classList.toggle('active', k === target);
   $('retry').hidden = !failed;
 }
@@ -96,7 +109,7 @@ function finish(fallback = false) {
   if (!animation) return;
   stopTimers(); if (typeof model.pause === 'function') model.pause();
   animation = null; busy = false; refreshView();
-  $('notice').textContent = (fallback ? 'Animation unavailable; showing the completed tree. ' : '') + (step === 5 ? 'You restored the tree. Place the flowering tree in AR at A.' : 'Leaves restored! View the tree in AR at A, then find the pink seed at C.');
+  $('notice').textContent = (fallback ? 'Animation unavailable; showing the completed tree. ' : '') + (step === 5 ? 'You restored the tree. Place the flowering tree in AR at A.' : 'Leaves restored! View the tree in AR at A, then find the bloom seed at C.');
   render();
 }
 $('action').onclick = () => {
