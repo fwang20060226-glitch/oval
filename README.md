@@ -1,71 +1,63 @@
-# Rooted in Time — Found on the Oval
+# Return to Bloom — Found on the Oval
 
-DESIGN 4106 · Intro to AR Training 2
+DESIGN 4106 · Project 2 · **Freya & Wenxi**
 
-## Project Deliverables
+- **Live page:** https://fwang20060226-glitch.github.io/oval/
+- **Repository:** https://github.com/fwang20060226-glitch/oval
+- **Route:** A (tree) → B (green seed) → A → C (pink seed) → A
+- **Intent:** Make care for the Oval's landscape tangible by asking players to walk, gather seeds, and return to restore one tree.
 
-- **Title:** Rooted in Time
-- **Names:** Freya&Wenxi
-- **Live page:** [https://github.com/fwang20060226-glitch/oval.git]
-- **Coordinates:** 39.999570, -83.013125
-- **Intent:** By revealing a growing tree on the Oval’s lawn, our AR experience makes the gradual growth behind this familiar campus landscape visible in a single visit.
-- **Screenshot:** See the on-site AR screenshot below.
-- **Video:** Submitted separately on Carmen as a stable MP4 recording under two minutes, showing both the approach and unlock, followed by AR placement.
+## Design concept
 
-![On-site AR view of the growing tree on the Oval](screenshot.png)
+Return to Bloom is a walking AR game about restoring life to a dormant tree on the Oval. Instead of discovering unrelated objects, players build a relationship with one place through repeated returns. At A, a bare tree introduces the task. Players walk to B to collect a green seed, then return to A to give it to the tree and reveal new leaves. A second journey leads to C, where a pink seed completes the collection. Bringing it back to A transforms the tree into its flowering state. The proposed placement makes A an anchor within the Oval's living landscape, while B and C encourage players to notice the paths, lawns, and transitions they normally cross without stopping. Final positions will be selected and tested on site. The repeated outward and homeward route makes the tree's recovery depend on the participant's physical effort. Clear objectives, collected seeds, and visible changes invite the next walk. Growth plays on the webpage; each completed stage can be placed in AR. A future map can extend the route toward the Oval's edges with water, pollinator, and other tree chapters, connecting individual discoveries into a larger story of collective care.
 
-## Concept and Development
+## Preview
 
-Our initial idea was to show the changing seasons on a patch of grass. We wanted participants to encounter a familiar part of the Oval and see the changes that normally unfold too slowly to notice during a single visit.
+![Return to Bloom browser simulation showing the restored tree](game-preview.png)
 
-We built a seasonal animation in Blender, but encountered several technical challenges. Some animation effects did not transfer reliably to our AR workflow, the exported animations were split into separate clips, and the model exceeded the assignment’s 5 MB file-size limit. Our initial video work:[https://youtu.be/vVoqFclYDIQ]
+This is a desktop browser simulation at a phone-sized viewport, **not** an on-site AR photograph. The earlier Training 2 screenshot remains in `screenshot.png`.
 
-We simplified the concept to a tree growing from a seedling into a mature tree. This preserved our interest in time and natural change while making the animation more suitable for AR. We also refined the tree with individual leaves, smaller branches, and details around its roots.
+## Play and demonstrate
 
-The location matters because the Oval’s lawn and trees form a landscape we often pass through without noticing its gradual changes. Requiring participants to physically reach the spot connects the digital growth to the real ground where they are standing.
+1. Open the published HTTPS page directly in Safari on iPhone/iPad.
+2. Tap **Start location tracking**, allow location, and walk to A.
+3. Wait for the model to load. Use **Place in AR** to show the dormant tree, then return to the webpage and begin the journey.
+4. At B, collect the green seed. The seed remains available for AR while you are at B.
+5. Return to A and give the seed. Watch the leaf animation once; the completed leafy tree becomes available for AR.
+6. At C, collect and view the pink seed in AR. Return to A and give it to reveal the flowering tree.
+7. Use **Restart game** before a fresh demonstration. Refreshing alone preserves progress.
 
-## Model and AR
+Growth plays once **on the webpage**. iPhone/iPad Quick Look displays the static object for the current stage; this project does not claim growth animation inside Apple's native AR viewer. Return to Safari to collect or give seeds. All seven original GLB assets remain GLB files; the viewer automatically prepares Apple's AR format when needed.
 
-The tree uses simple mesh geometry and animated transformations. Its growth is combined into one animation clip lasting approximately 18 seconds.
+## Assets and scale
 
-- **GLB size:** Approximately 3.70 MB
-- **Scale:** 1 unit = 1 metre
-- **Mature tree height:** Approximately 4.9 metres
-- **Web model:** `models/1122.glb`
-- **Background audio:** `audio/ovalbgm.mp3`
+| Asset | GLB file | Size (decimal MB) |
+|---|---|---:|
+| Dormant tree | `models/dead.glb` | 0.46 |
+| Green seed | `models/green-seed.glb` | 0.07 |
+| Leafy tree | `models/leaves.glb` | 1.52 |
+| Pink seed | `models/pink-seed.glb` | 0.09 |
+| Flowering tree | `models/bloom.glb` | 2.14 |
+| Leaf growth | `models/grow-leaves.glb` | 3.44 |
+| Flower growth | `models/grow-flowers.glb` | 3.28 |
 
-The GLB is used for the web preview. A separate animated USDZ is provided for iPhone and iPad AR because the automatic conversion used by our webpage did not preserve the growth animation.
+All seven GLBs are below 5 MB. glTF units are metres: trees are approximately 3 m tall; seeds are approximately 0.24–0.26 m tall. AR uses fixed scale. Physical placement and perceived scale still require on-device verification.
 
-Background music begins after pressing Start, with a play/pause control on the webpage.
+## Location configuration and testing
 
-## Test on Your Computer
+`SPOTS` in `index.html` contains A, B and C. Coordinates are currently unconfigured pending on-site measurement. Each radius is 20 m; all pairs must be farther apart than the sum of their radii. Production mode refuses unconfigured or overlapping spots. `?scout` records measurements for copying into `SPOTS`.
 
-1. Open the project folder in VS Code.
-2. Install the Live Server extension if needed.
-3. Right-click `index.html` and select **Open with Live Server**.
-4. Add `?fake` to the address.
-5. Click **Start** to simulate approaching the spot and test the unlock and growth animation.
+For desktop testing, serve the folder with VS Code Live Server and open `index.html?fake`. Use the A/B/C arrival buttons. This is explicitly labelled simulation and uses separate saved progress from live play. It does **not** verify real GPS or native AR.
 
-## Test on Location
+Model failures offer a retry without erasing progress. Animation failures fall back to the earned static tree. The model-viewer library is stored locally under `vendor/` to avoid a separate CDN dependency; the page and model files still require network access to download.
 
-1. Open the published GitHub Pages website on your phone.
-2. Make sure the URL does not contain `?fake` or `?scout`.
-3. Tap **Start** and allow location access.
-4. Walk toward **39.999570, -83.013125**.
-5. Once inside the unlock radius, the model appears and the growth animation starts.
-6. Tap **View in AR** and place the tree on the ground.
-7. Check its placement, physical scale, and animation on the device.
+## Submission status
 
-## How It Works
-
-The webpage uses the phone’s GPS to calculate the distance to the selected spot. The model remains hidden until the participant enters the unlock radius.
-
-The coordinates are set in `TARGET`, and the unlock radius is set in `RADIUS` in `index.html`.
+- Title, team names, concept and browser preview are included here.
+- Working browser game: A → B → A → C → A.
+- Before the live demo: enter measured coordinates, publish the current files, and test native AR placement on the intended iPhone/iPad.
+- Submit the stable MP4 video (under 3 minutes), landscape tabloid PDF map, and individual portfolio links separately on Carmen. These deliverables are not represented as complete by this README.
 
 ## Credits
 
-Built from the course’s
-[geo-model-viewer starter](https://github.com/robillardstudio/geo-model-viewer-starter)
-using [model-viewer](https://modelviewer.dev/).
-
-The project was developed through iterative Blender and web testing, with AI assistance for troubleshooting, tree-model generation, animation export, and webpage integration.
+Built on the course's [geo-model-viewer starter](https://github.com/robillardstudio/geo-model-viewer-starter), using [model-viewer](https://modelviewer.dev/). The local model-viewer distribution retains its upstream license header. Development included AI-assisted integration, troubleshooting, and browser testing. The original Training 2 documentation is preserved in `TRAINING-2.md`.
